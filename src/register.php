@@ -8,7 +8,7 @@ include_once 'includes/register.inc.php';
         <title>Secure Login: Registration Form</title>
         <script type="text/JavaScript" src="js/sha512.js"></script>
         <script type="text/JavaScript" src="js/forms.js"></script>
-        <link rel="stylesheet" href="styles/main.css" />
+        <link rel="stylesheet" href="styles/css/bootstrap.css" />
     </head>
     <body>
         <!-- Registration form to be output if the POST variables are not
