@@ -3,39 +3,47 @@ include_once 'includes/db_connect.php';
 include_once 'includes/functions.php';
 
 sec_session_start();
-
-if (login_check($mysqli) == true) {
-    $logged = 'in';
-} else {
-    $logged = 'out';
-}
 ?>
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
         <title>Secure Login: Log In</title>
 
         <!-- Bootstrap core CSS -->
         <link href="styles/css/bootstrap.css" rel="stylesheet">
-
-        <!-- Custom styles for login page -->
+        <!-- Custom styles for login/registration page -->
         <link href="styles/css/signin.css" rel="stylesheet">
+        <!-- Custom styles for this template -->
+        <link href="styles/css/navbar-fixed-top.css" rel="stylesheet">
 
         <script type="text/JavaScript" src="js/sha512.js"></script>
         <script type="text/JavaScript" src="js/forms.js"></script>
     </head>
     <body>
-        <?php include('menu.php');?>
-        <?php
-        if (isset($_GET['error'])) {
-            echo '<p class="error">Error Logging In!</p>';
-        }
-        ?>
+        <?php include 'menu.php';?>
+
         <div class="container">
+            <?php
+                if (isset($_GET['error'])) {
+                    echo '<div class="alert alert-danger">';
+                        switch ($_GET['error']) {
+                                case "1":
+                                    echo 'Error Logging In!';
+                                    break;
+                                case "2":
+                                    echo 'No such user!';
+                                    break;
+                                default:
+                                    echo $_GET['error'];
+                            }
+                    echo '</div>';
+                }
+
+                if (login_check($mysqli) == true) :
+                    header('Location: index.php');
+                else :
+            ?>
             <form class="form-signin" action="includes/process_login.php" method="post" name="login_form">
                 <h2 class="form-signin-heading">Please sign in</h2>
                 <input class="form-control"
@@ -55,9 +63,8 @@ if (login_check($mysqli) == true) {
                        value="Login"
                        onclick="return formhash(this.form, this.form.password);">
                 <p>If you don't have a login, please <a href="register.php">register</a></p>
-                <p>If you are done, please <a href="includes/logout.php">log out</a>.</p>
-                <p>You are currently logged <?php echo $logged ?>.</p>
             </form>
+            <?php endif; ?>
         </div>
     </body>
 </html>

@@ -1,14 +1,11 @@
 <?php
+    include_once '../includes/db_connect.php';
+    include_once '../includes/functions.php';
 
-include_once '../includes/db_connect.php';
-include_once '../includes/functions.php';
-
-sec_session_start();
-
-// If user is not logged in, redirect to login page
-if (!login_check($mysqli)) {
-    header('Location: ../login.php');
-}
+    // If user is not logged in, redirect to login page
+    if (!login_check($mysqli)) {
+        header('Location: ../login.php');
+    }
 
     //if form has been submitted process it
     if(isset($_POST['submit'])){
@@ -54,9 +51,11 @@ if (!login_check($mysqli)) {
     }
 
     //check for any errors
-    if(isset($error)){
+    if (isset($error)) {
         foreach($error as $error){
-            echo '<p class="error">'.$error.'</p>';
+            echo '<div class="alert alert-danger">';
+                echo '<p class="error">'.$error.'</p>';
+            echo '</div>';
         }
     }
 ?>

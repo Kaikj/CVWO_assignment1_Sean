@@ -1,147 +1,105 @@
-<?php //include config
-require_once('../includes/config.php');
+<?php
+include_once '../includes/db_connect.php';
+include_once '../includes/functions.php';
+include_once '../includes/edit-user.inc.php';
 
-//if not logged in redirect to login page
-if(!$user->is_logged_in()){ header('Location: login.php'); }
+sec_session_start();
+
+// If user is not logged in, redirect to login page
+if (!login_check($mysqli)) {
+    header('Location: ../login.php');
+}
 ?>
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Admin - Edit User</title>
-  <link rel="stylesheet" href="../style/normalize.css">
-  <link rel="stylesheet" href="../style/main.css">
-</head>
-<body>
 
-<div id="wrapper">
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Admin - Edit User</title>
 
-    <?php include('menu.php');?>
-    <p><a href="users.php">User Admin Index</a></p>
+        <!-- Bootstrap core CSS -->
+        <link href="../styles/css/bootstrap.css" rel="stylesheet">
+        <!-- Custom styles for login/registration page -->
+        <link href="../styles/css/signin.css" rel="stylesheet">
+        <!-- Custom styles for this template -->
+        <link href="../styles/css/navbar-fixed-top.css" rel="stylesheet">
 
-    <h2>Edit User</h2>
+        <script type="text/JavaScript" src="../js/sha512.js"></script>
+        <script type="text/JavaScript" src="../js/forms.js"></script>
+    </head>
+    <body>
 
+        <?php include 'admin_menu.php';?>
 
-    <?php
-
-    //if form has been submitted process it
-    if(isset($_POST['submit'])){
-
-        //collect form data
-        extract($_POST);
-
-        //very basic validation
-        if($username ==''){
-            $error[] = 'Please enter the username.';
-        }
-
-        if( strlen($password) > 0){
-
-            if($password ==''){
-                $error[] = 'Please enter the password.';
-            }
-
-            if($passwordConfirm ==''){
-                $error[] = 'Please confirm the password.';
-            }
-
-            if($password != $passwordConfirm){
-                $error[] = 'Passwords do not match.';
-            }
-
-        }
-
-
-        if($email ==''){
-            $error[] = 'Please enter the email address.';
-        }
-
-        if(!isset($error)){
-
-            try {
-
-                if(isset($password)){
-
-                    $hashedpassword = $user->create_hash($password);
-
-                    //update into database
-                    $stmt = $db->prepare('UPDATE blog_members SET username = :username, password = :password, email = :email WHERE memberID = :memberID') ;
-                    $stmt->execute(array(
-                        ':username' => $username,
-                        ':password' => $hashedpassword,
-                        ':email' => $email,
-                        ':memberID' => $memberID
-                    ));
-
-
-                } else {
-
-                    //update database
-                    $stmt = $db->prepare('UPDATE blog_members SET username = :username, email = :email WHERE memberID = :memberID') ;
-                    $stmt->execute(array(
-                        ':username' => $username,
-                        ':email' => $email,
-                        ':memberID' => $memberID
-                    ));
-
+        <div class="container">
+            <?php
+                if (!empty($error_msg)) {
+                    echo '<div class="alert alert-danger">';
+                        echo $error_msg;
+                    echo '</div>';
                 }
+            ?>
 
 
-                //redirect to index page
-                header('Location: users.php?action=updated');
-                exit;
+            <?php
+                $prep_stmt = 'SELECT email FROM members WHERE id = ?';
 
-            } catch(PDOException $e) {
-                echo $e->getMessage();
-            }
+                if ($stmt = $mysqli->prepare($prep_stmt)) {
+                    $stmt->bind_param('i', $_GET['id']);
+                    $stmt->execute();
+                    $stmt->bind_result($email);
+                    $stmt->fetch();
+                }
+            ?>
 
-        }
+            <form action='<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>' class="form-signin" method="post">
 
-    }
+                <h1 class="form-signin-heading">Edit User</h1>
+                <ul>
+                    <li>Passwords must be at least 6 characters long</li>
+                    <li>Passwords must contain
+                        <ul>
+                            <li>At least one upper case letter (A..Z)</li>
+                            <li>At least one lower case letter (a..z)</li>
+                            <li>At least one number (0..9)</li>
+                        </ul>
+                    </li>
+                    <li>Your password and confirmation must match exactly</li>
+                </ul>
+                <input type='hidden' name='id' value='<?php echo $_GET["id"];?>'>
 
-    ?>
+                <input class="form-control"
+                       type="text"
+                       name="email"
+                       id="email"
+                       placeholder="Email Address"
+                       value='<?php echo $email;?>'
+                       disabled>
+                <input class="form-control"
+                       type="password"
+                       name="password"
+                       id="password"
+                       placeholder="New Password"
+                       autofocus>
+                <input class="form-control"
+                       type="password"
+                       name="confirmpwd"
+                       id="confirmpwd"
+                       placeholder="Confirm Password">
+                <input type="submit"
+                       name="submit"
+                       class="btn btn-lg btn-primary btn-block"
+                       value="Update User"
+                       onclick="return regformhash(this.form,
+                                       this.form.email,
+                                       this.form.password,
+                                       this.form.confirmpwd);">
+            </form>
+        </div>
+        <!-- Bootstrap core JavaScript
+        ================================================== -->
+        <!-- Placed at the end of the document so the pages load faster -->
+        <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+        <script src="../styles/js/bootstrap.min.js"></script>
 
-
-    <?php
-    //check for any errors
-    if(isset($error)){
-        foreach($error as $error){
-            echo $error.'<br />';
-        }
-    }
-
-        try {
-
-            $stmt = $db->prepare('SELECT memberID, username, email FROM blog_members WHERE memberID = :memberID') ;
-            $stmt->execute(array(':memberID' => $_GET['id']));
-            $row = $stmt->fetch();
-
-        } catch(PDOException $e) {
-            echo $e->getMessage();
-        }
-
-    ?>
-
-    <form action='' method='post'>
-        <input type='hidden' name='memberID' value='<?php echo $row['memberID'];?>'>
-
-        <p><label>Username</label><br />
-        <input type='text' name='username' value='<?php echo $row['username'];?>'></p>
-
-        <p><label>Password (only to change)</label><br />
-        <input type='password' name='password' value=''></p>
-
-        <p><label>Confirm Password</label><br />
-        <input type='password' name='passwordConfirm' value=''></p>
-
-        <p><label>Email</label><br />
-        <input type='text' name='email' value='<?php echo $row['email'];?>'></p>
-
-        <p><input type='submit' name='submit' value='Update User'></p>
-
-    </form>
-
-</div>
-
-</body>
+    </body>
 </html>

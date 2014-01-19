@@ -10,23 +10,25 @@
             <a class="navbar-brand" href="index.php">Blog</a>
         </div>
         <div class="collapse navbar-collapse">
-            <ul class="nav navbar-nav">
-                <li><a href="#about">About</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
             <ul class="nav navbar-nav navbar-right">
                 <?php if (!login_check($mysqli)): ?>
-                <li><a href="login.php">Login</a></li>
+                    <li><p class="navbar-text">Welcome Guest!</p></li>
+                    <li><a href="login.php">Login</a></li>
 
                 <?php else: ?>
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin <b class="caret"></b></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="./admin/manage-posts.php">Manage Posts</a></li>
-                        <li><a href="./admin/add-post.php">Add Posts</a></li>
-                    </ul>
-                </li>
-                <li><a href="includes/logout.php">Logout</a></li>
+                    <li><p class="navbar-text">Welcome <?php echo $_SESSION['email']; ?>!</p></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li class="dropdown-header">Posts</li>
+                            <li><a href="./admin/manage-posts.php">Manage Posts</a></li>
+                            <li><a href="./admin/add-post.php">Add Posts</a></li>
+                            <li class="divider"></li>
+                            <li class="dropdown-header">Users</li>
+                            <li><a href="./admin/users.php">Manage Users</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="includes/logout.php">Logout</a></li>
                 <?php endif; ?>
           </ul>
         </div><!-- /.nav-collapse -->

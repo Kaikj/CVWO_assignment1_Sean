@@ -4,8 +4,8 @@
  */
 
 define("HOST", "localhost");  // Host to connect to
-define("USER", "user");  // The database username
-define("PASSWORD", "AJFRHLVtFJeSMZS6");  // The database password
+define("USER", "User");  // The database username
+define("PASSWORD", "cJrsjqm6Cq9KFbrJ");  // The database password
 define("DATABASE", "blog_database");  // The database name
 
 define("SECURE", false);
